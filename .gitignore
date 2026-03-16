@@ -1,0 +1,46 @@
+# os
+.DS_Store
+Thumbs.db
+._*
+
+# ide / editor
+.cursor
+.cursor/
+.vscode/
+*.swp
+*.swo
+*~
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# downloaded / generated data
+/data/*.parquet
+/data/*.csv
+/data/qc/
+/data/universe.json
+/data/buckets.json
+
+# benchmark results (produced by benchmarks/*/run.py)
+/.results/
+
+# temp (papers, converted docs, latex builds)
+/.temp/
+
+# internal notes
+/assessment/
+
+# backups
+*.backup
+
+# environment
+.env
+*.log
