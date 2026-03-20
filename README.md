@@ -99,6 +99,12 @@ signals = pd.DataFrame({
 
 MSFT is rebalanced from the budget remaining after AAPL's drifted value. this is a common pattern for sector rotation (hold winners, rebalance losers).
 
+### the 15 benchmark strategies
+
+the companion paper tests the engine on 15 strategies across five categories (simple, signal, rotation, ML, ablation), each run on 30 independent asset buckets drawn from 180 S&P 500 stocks. the shaded bands show the spread across buckets; the lines show the median.
+
+![equity curves for all 15 benchmark strategies grouped by category, each averaged over 30 stratified asset buckets with the S&P 500 (grey) as reference. the question the concordance API answers: do all five engines agree on these curves?](figures/equity-overlay.png)
+
 ## 2. concordance testing
 
 run the same strategy through multiple backtesting engines and measure how much they disagree. the concordance API uses a dict format (not a DataFrame) because it needs to pass the same schedule to engines with different internal formats.

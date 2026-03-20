@@ -32,6 +32,10 @@ bibliography: paper.bib
 
 we built this tool because we found, during the research for our companion paper, that practitioners implicitly trust their backtesting engine as ground truth. yet when we fed identical strategies, identical data, and identical cost parameters to five different engines, the results diverged, sometimes by over 3% in cumulative equity. this is not a bug in any single engine; it is a structural property of how each engine implements execution order, commission timing, and cash settlement. we call this "implementation risk," and we believe it represents a previously unquantified source of error in portfolio evaluation.
 
+![equity curves for all 15 benchmark strategies grouped by category, each run on 30 stratified asset buckets (180 S&P 500 stocks) with the S&P 500 as reference. `crossengine` measures whether all five engines agree on these curves.](figures/equity-overlay.png)
+
+this software accompanies the paper "Implementation Risk in Portfolio Backtesting: A Previously Unquantified Source of Error" [@yin2026implementation], submitted to Financial Innovation and available on arXiv (q-fin.CP).
+
 # statement of need
 
 no existing tool allows a practitioner to validate backtesting results across engines. each engine operates as an isolated system with its own conventions, and a strategy that produces a 14.5% CAGR in one engine may show 14.2% in another. the user has no way to detect this without manually reimplementing their strategy in every engine, a process that in our experience takes days per engine and is itself error-prone.
