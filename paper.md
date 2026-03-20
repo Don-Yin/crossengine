@@ -62,16 +62,16 @@ the companion paper validates this tool on 12 benchmark strategies (plus 4 ML ap
 - **backtesting engine**: multi-asset portfolio simulation with proportional commission and slippage models, STAY semantics (freeze share count, let weight drift), and limit/stop order support
 - **concordance testing**: run the same strategy through 5 engines with a single function call
 - **STAY signal**: a first-class "hold and drift" instruction in the signal schedule. we found this necessary because partial rebalancing (hold some assets, trade others) is common in practice but inexpressible in a pure target-weight format. engines with runtime portfolio state (ours, bt, Backtrader) resolve STAY natively; engines that receive signals upfront (vectorbt, cvxportfolio) receive pre-resolved drifted weights via forward simulation
-- **graceful engine detection**: the concordance API runs whichever engines are installed and skips missing ones. this matters because vectorbt and Backtrader have heavy or unmaintained dependency trees that not every user will want to install
-- **ConcordanceReport**: pairwise divergence metrics, max divergence, engine sensitivity, equity curves as a DataFrame, JSON export, and publication-ready plots
+- **graceful engine detection**: runs whichever engines are installed and skips missing ones
+- **ConcordanceReport**: pairwise divergence metrics, engine sensitivity, equity curves as a DataFrame, JSON export, and plots
 
 # design
 
 ![engine sensitivity (ES) across 15 benchmarks and 10 metrics (5 base metrics with ranges), computed over 30 independent asset buckets each. most strategies show near-zero sensitivity; rotation and concentrated strategies show material divergence in return and CAGR.](figures/engine-concordance.png)
 
-the package uses a two-layer architecture that we arrived at after considerable iteration. the backtesting engine accepts a signals DataFrame (with optional STAY sentinels) and produces a `BacktestResult` with portfolio value, positions, trades, and metrics. the concordance layer uses a `SignalSchedule` dict as its interchange format (`{Timestamp: {asset: weight | STAY}}`), which each engine wrapper translates into its native API.
+the package uses a two-layer architecture. the backtesting engine accepts a signals DataFrame (with optional STAY sentinels) and produces a `BacktestResult` with portfolio value, positions, trades, and metrics. the concordance layer uses a `SignalSchedule` dict as its interchange format (`{Timestamp: {asset: weight | STAY}}`), which each engine wrapper translates into its native API.
 
-the category A/B split for STAY resolution is the decision that most shaped the architecture. engines with access to live portfolio state (ours, bt, Backtrader) can compute drifted weights at runtime, and this computation is exact. engines that receive their full signal schedule upfront (vectorbt, cvxportfolio) cannot query portfolio state during simulation, so we pre-resolve STAY into concrete drifted weights via a forward simulation. this introduces a small approximation (the forward simulation uses simplified cost accounting), which we consider acceptable: the approximation error is well below the cross-engine divergence that the tool is designed to measure.
+the category A/B split for STAY resolution shaped the architecture. engines with access to live portfolio state (ours, bt, Backtrader) compute drifted weights at runtime, and this computation is exact. engines that receive their full signal schedule upfront (vectorbt, cvxportfolio) cannot query portfolio state during simulation, so we pre-resolve STAY into concrete drifted weights via a forward simulation. this introduces a small approximation (simplified cost accounting), which we consider acceptable: the approximation error is well below the cross-engine divergence that the tool is designed to measure.
 
 # limitations
 
@@ -83,7 +83,7 @@ the forward simulation for category B STAY resolution does not perfectly replica
 
 # testing
 
-the package includes 44 tests that cover the engine, STAY resolution, wrapper correctness, orchestrator routing, and full-pipeline validation. the full validation test runs BM01 (equal-weight monthly rebalance) through all 5 engines on all 30 stratified asset buckets and compares each equity curve against the paper's saved results. all 150 comparisons match to sub-penny tolerance.
+the package includes 44 tests. the full validation test runs BM01 (equal-weight monthly rebalance) through all 5 engines on all 30 stratified asset buckets and compares each equity curve against the paper's saved results. all 150 comparisons match to sub-penny tolerance.
 
 # acknowledgements
 
