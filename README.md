@@ -4,6 +4,8 @@ multi-asset portfolio backtesting engine + cross-engine concordance testing.
 
 companion code for the paper "Implementation Risk in Portfolio Backtesting: A Previously Unquantified Source of Error" (Yin, Miki, Lesnichenko).
 
+![divergence scales with transaction costs: strategies with higher costs produce larger cross-engine disagreement, from 0.0% (zero-cost ablation) to 3.7% (high-turnover rotation). each point is one of 15 benchmarks averaged over 30 stratified asset buckets.](figures/divergence-vs-cost.png)
+
 ## install
 
 ```bash
@@ -100,6 +102,8 @@ MSFT is rebalanced from the budget remaining after AAPL's drifted value. this is
 ## 2. concordance testing
 
 run the same strategy through multiple backtesting engines and measure how much they disagree. the concordance API uses a dict format (not a DataFrame) because it needs to pass the same schedule to engines with different internal formats.
+
+![engine sensitivity (ES) across 15 benchmarks and 8 performance metrics. most strategies show near-zero sensitivity (white), but rotation and concentrated strategies show material divergence in return and CAGR metrics (red). computed over 30 independent asset buckets per benchmark.](figures/engine-concordance.png)
 
 ### with a strategy function
 
@@ -205,6 +209,8 @@ report = concordance(weights, prices, engines=("ours", "bt"))
 ```
 
 supported engines: `ours`, `bt`, `vectorbt`, `backtrader`, `cvxportfolio`.
+
+![dollar impact of engine divergence at $1M AUM across all 15 benchmarks and 10 engine pairs. simple strategies (top) produce hundreds of dollars of ambiguity; high-turnover strategies (bottom) produce tens of thousands.](figures/economic-significance.png)
 
 ## 3. reproduce paper results
 
