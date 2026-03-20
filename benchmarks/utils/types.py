@@ -1,6 +1,8 @@
-"""shared type aliases for the benchmarking framework."""
-from __future__ import annotations
+"""shared type aliases for the benchmarking framework.
 
-import pandas as pd
+canonical definitions live in crossengine.concordance.types; re-exported here
+for backward compatibility with existing benchmark scripts.
+"""
+from crossengine.concordance.types import STAY, SignalSchedule, WeightSchedule
 
-WeightSchedule = dict[pd.Timestamp, dict[str, float]]
+__all__ = ["STAY", "SignalSchedule", "WeightSchedule"]

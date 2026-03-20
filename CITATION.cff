@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "if you use this software, please cite it as below."
+type: software
+title: "crossengine: multi-asset portfolio backtesting engine with cross-engine concordance testing"
+authors:
+  - family-names: Yin
+    given-names: Don
+    orcid: "https://orcid.org/0000-0002-8971-1057"
+  - family-names: Miki
+    given-names: Takeshi
+    orcid: "https://orcid.org/0009-0000-2063-6274"
+  - family-names: Lesnichenko
+    given-names: Vladislav
+    orcid: "https://orcid.org/0009-0004-9023-3613"
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/donyin/crossengine"
+keywords:
+  - backtesting
+  - portfolio
+  - concordance
+  - implementation risk
+  - finance

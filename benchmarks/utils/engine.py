@@ -1,10 +1,14 @@
-"""WeightSchedule type, engine adapters, and unified benchmark runner.
+"""SignalSchedule type, engine adapters, and unified benchmark runner.
 
-A WeightSchedule is the universal interchange format between strategies
-and engine adapters:  {date: {asset: target_weight}}.
+a SignalSchedule is the universal interchange format between strategies
+and engine adapters: {date: {asset: target_weight | STAY}}.
 
 individual engine adapters live in utils/wrappers/. this module re-exports
 them and provides the unified run_benchmark() orchestrator.
+
+category A engines (ours, bt, backtrader) resolve STAY at runtime using
+live portfolio state. category B engines (vectorbt, cvxportfolio) receive
+pre-resolved WeightSchedule from resolve_stay().
 """
 
 from __future__ import annotations
@@ -20,30 +24,27 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.types import WeightSchedule
+from utils.resolve import has_stay, resolve_stay
+from utils.types import STAY, SignalSchedule, WeightSchedule
 from utils.wrappers import (
     run_backtrader_engine,
     run_bt_engine,
     run_cvxportfolio_engine,
-    run_nautilus_engine,
     run_ours,
     run_vbt_engine,
-    run_zipline_engine,
 )
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "STAY",
+    "SignalSchedule",
     "WeightSchedule",
     "run_ours",
     "run_bt_engine",
     "run_vbt_engine",
     "run_backtrader_engine",
     "run_cvxportfolio_engine",
-    "run_zipline_engine",
-    "run_nautilus_engine",
-    "run_bt",
-    "run_vectorbt",
     "run_benchmark",
 ]
 
@@ -75,62 +76,11 @@ def _timed_call(fn, kwargs: dict):
     return result, time.perf_counter() - t0
 
 
-# ── old-style runners (used by benchmarks 01-04) ─────────────────────────
-
-
-def run_bt(
-    close: pd.DataFrame,
-    strategy,
-    *,
-    initial_cash: float,
-    commission_rate: float,
-) -> pd.Series:
-    """Run a pre-built bt.Strategy, return portfolio value series ($)."""
-    import bt as _bt
-
-    comm_fn = (lambda q, p: abs(q) * p * commission_rate) if commission_rate else (lambda q, p: 0)
-    test = _bt.Backtest(
-        strategy,
-        close,
-        initial_capital=initial_cash,
-        commissions=comm_fn,
-        integer_positions=False,
-    )
-    res = _bt.run(test)
-    name = list(res.keys())[0]
-    rebased = res.prices[name]
-    return rebased / rebased.iloc[0] * initial_cash
-
-
-def run_vectorbt(
-    close: pd.DataFrame,
-    size: pd.DataFrame,
-    *,
-    initial_cash: float,
-    commission_rate: float,
-) -> pd.Series:
-    """Run vectorbt from a pre-built size DataFrame, return value series ($)."""
-    import vectorbt as vbt
-
-    pf = vbt.Portfolio.from_orders(
-        close,
-        size,
-        size_type="targetpercent",
-        fees=commission_rate,
-        init_cash=initial_cash,
-        freq="1D",
-        group_by=True,
-        cash_sharing=True,
-        call_seq="auto",
-    )
-    return pf.value()
-
-
 # ── unified benchmark runner ──────────────────────────────────────────────
 
 
 def run_benchmark(
-    ws: WeightSchedule,
+    ss: SignalSchedule,
     close: pd.DataFrame,
     *,
     results_dir: Path,
@@ -142,20 +92,26 @@ def run_benchmark(
     spx: pd.Series | None = None,
     parallel: bool = True,
 ) -> None:
-    """run all engines on one WeightSchedule, compare, write report."""
+    """run all engines on one SignalSchedule, compare, write report."""
     from utils.comparison import write_comparison
 
-    if not ws:
-        warnings.warn(f"empty weight schedule for '{title}' -- all-cash portfolio")
+    if not ss:
+        warnings.warn(f"empty signal schedule for '{title}' -- all-cash portfolio")
 
     total_cost_rate = commission + slippage
     short_name = Path(results_dir).name
+
+    # resolve STAY for category B engines (vectorbt, cvxportfolio)
+    ws_resolved: WeightSchedule = resolve_stay(ss, close, initial_cash, total_cost_rate) if has_stay(ss) else ss
+
+    # category A: receive raw SignalSchedule (native STAY resolution)
+    # category B: receive pre-resolved WeightSchedule (pure floats)
     tasks = {
-        "ours": (run_ours, dict(close=close, ws=ws, initial_cash=initial_cash, commission=commission, slippage=slippage)),
-        "bt": (run_bt_engine, dict(close=close, ws=ws, name=short_name, initial_cash=initial_cash, commission=total_cost_rate)),
-        "vectorbt": (run_vbt_engine, dict(close=close, ws=ws, initial_cash=initial_cash, commission=total_cost_rate)),
-        "backtrader": (run_backtrader_engine, dict(close=close, ws=ws, initial_cash=initial_cash, commission=total_cost_rate)),
-        "cvxportfolio": (run_cvxportfolio_engine, dict(close=close, ws=ws, initial_cash=initial_cash, commission=total_cost_rate)),
+        "ours": (run_ours, dict(close=close, ss=ss, initial_cash=initial_cash, commission=commission, slippage=slippage)),
+        "bt": (run_bt_engine, dict(close=close, ss=ss, name=short_name, initial_cash=initial_cash, commission=total_cost_rate)),
+        "backtrader": (run_backtrader_engine, dict(close=close, ss=ss, initial_cash=initial_cash, commission=total_cost_rate)),
+        "vectorbt": (run_vbt_engine, dict(close=close, ws=ws_resolved, initial_cash=initial_cash, commission=total_cost_rate)),
+        "cvxportfolio": (run_cvxportfolio_engine, dict(close=close, ws=ws_resolved, initial_cash=initial_cash, commission=total_cost_rate)),
     }
 
     in_worker = os.environ.get("_BACKTEST_WORKER") == "1"

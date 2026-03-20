@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from backtest import OHLCV, STAY, IBKRTiered, Order, OrderQueue, OrderType, backtest
+from crossengine import OHLCV, STAY, IBKRTiered, Order, OrderQueue, OrderType, backtest
 
 
 def _make_prices(n_days: int = 20) -> pd.DataFrame:

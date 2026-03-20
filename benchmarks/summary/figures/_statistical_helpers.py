@@ -73,6 +73,8 @@ def permutation_pvalue(
 ) -> tuple[float, np.ndarray, float]:
     """sign-flip permutation test for mean divergence != 0."""
     observed = abs(np.mean(values))
+    if observed < 1e-6:
+        return observed, np.array([]), 1.0
     rng = np.random.default_rng(seed)
     signs = rng.choice([-1, 1], size=(n_perm, len(values)))
     perm_means = np.abs((values[None, :] * signs).mean(axis=1))

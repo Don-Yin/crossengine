@@ -71,7 +71,7 @@ def _add_benchmark_section(
     """compute benchmark metrics and append report lines if available."""
     if bench is None:
         return None
-    from backtest.metrics import compute_benchmark_metrics
+    from crossengine.metrics import compute_benchmark_metrics
 
     bm = compute_benchmark_metrics(ours, bench)
     if not bm:

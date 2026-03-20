@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "backtest"
+name = "crossengine"
 version = "0.1.0"
-description = "Standalone multi-asset portfolio backtesting engine"
+description = "Multi-asset portfolio backtesting engine with cross-engine concordance testing"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0",
@@ -17,7 +17,7 @@ plot = ["matplotlib>=3.7"]
 dev = ["pytest>=7.0", "matplotlib>=3.7"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/backtest"]
+packages = ["src/crossengine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

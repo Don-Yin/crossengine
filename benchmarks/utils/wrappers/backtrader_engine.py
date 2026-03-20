@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import backtrader as _bt
 import pandas as pd
-from utils.types import WeightSchedule
+from utils.types import STAY, SignalSchedule
 
 _EPS = 1e-9
 
@@ -56,10 +56,10 @@ class _FractionalCommInfo(_bt.CommInfoBase):
         return abs(size) * price * self.p.commission
 
 
-class _AtomicRebalanceWS(_bt.Strategy):
-    """atomic weight targeting with sell-before-buy ordering."""
+class _AtomicRebalanceSS(_bt.Strategy):
+    """atomic weight targeting with sell-before-buy ordering and native STAY."""
 
-    params = (("ws", {}), ("tickers", []), ("commission", 0.0))
+    params = (("ss", {}), ("tickers", []), ("commission", 0.0))
 
     def __init__(self):
         self.vals, self.dts = [], []
@@ -68,18 +68,42 @@ class _AtomicRebalanceWS(_bt.Strategy):
         dt = pd.Timestamp(self.datas[0].datetime.date(0))
         self.dts.append(dt)
         self.vals.append(self.broker.getvalue())
-        weights = self.p.ws.get(dt)
-        if weights is None:
+        signals = self.p.ss.get(dt)
+        if signals is None:
             return
 
         pf_val = self.broker.getvalue()
         comm = self.p.commission
 
+        # phase 1: identify STAY assets and compute their value
+        stay_value = 0.0
+        stay_assets = set()
+        for i, d in enumerate(self.datas):
+            t = self.p.tickers[i]
+            sig = signals.get(t, 0.0)
+            if sig == STAY:
+                stay_assets.add(t)
+                stay_value += self.getposition(d).size * d.close[0]
+
+        # phase 2: compute target weights for active assets
+        budget = pf_val - stay_value
+        active_sigs = {
+            t: float(signals.get(t, 0.0))
+            for t in self.p.tickers if t not in stay_assets
+        }
+        active_sum = sum(abs(v) for v in active_sigs.values())
+
         sells, buys = [], []
         for i, d in enumerate(self.datas):
             t = self.p.tickers[i]
+            if t in stay_assets:
+                continue  # no trades for STAY assets
             price = d.close[0]
-            target = pf_val * weights.get(t, 0.0) / price
+            if active_sum > 0 and budget > 0:
+                proportion = abs(active_sigs.get(t, 0.0)) / active_sum
+                target = budget * proportion / price
+            else:
+                target = 0.0
             current = self.getposition(d).size
             delta = target - current
             if delta < -1e-10:
@@ -103,11 +127,12 @@ class _AtomicRebalanceWS(_bt.Strategy):
 
 def run_backtrader_engine(
     close: pd.DataFrame,
-    ws: WeightSchedule,
+    ss: SignalSchedule,
     *,
     initial_cash: float,
     commission: float,
 ) -> pd.Series:
+    """run backtrader engine with native STAY support."""
     cerebro = _bt.Cerebro()
     tickers = close.columns.tolist()
     for col in tickers:
@@ -123,8 +148,8 @@ def run_backtrader_engine(
         )
         cerebro.adddata(_bt.feeds.PandasData(dataname=ohlcv), name=col)
     cerebro.addstrategy(
-        _AtomicRebalanceWS,
-        ws=ws,
+        _AtomicRebalanceSS,
+        ss=ss,
         tickers=tickers,
         commission=commission,
     )

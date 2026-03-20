@@ -16,7 +16,9 @@ from summary.collect import (
 )
 from summary.concordance import compute_engine_concordance
 from summary.concordance_diagnostics import (
-    compute_bucket_autocorrelation, compute_floor_decomposition,
+    compute_bucket_autocorrelation,
+    compute_bucket_exchangeability,
+    compute_floor_decomposition,
 )
 from summary import figures
 
@@ -47,10 +49,20 @@ def _save_intermediate_json(df, conc) -> None:
 
 
 def _save_icc_and_floor() -> None:
-    """persist icc and floor decomposition tables."""
+    """persist icc, exchangeability, and floor decomposition tables."""
     from summary.collect import TABLES_RAW_DIR
     ir_dir = TABLES_RAW_DIR / "implementation-risk"
     ir_dir.mkdir(parents=True, exist_ok=True)
+
+    exc_detail, exc_summary, exc_extra = compute_bucket_exchangeability()
+    if not exc_summary.empty:
+        p = ir_dir / "exchangeability-summary.csv"
+        exc_summary.to_csv(p, index=False)
+        print(f"  table -> {p}")
+        for _, row in exc_summary.iterrows():
+            print(f"    cluster-bootstrap: rho = {row['observed_rho']:.4f} "
+                  f"95% CI [{row['bootstrap_ci95_lower']:.4f}, {row['bootstrap_ci95_upper']:.4f}] "
+                  f"-> {row['interpretation']}")
 
     icc_detail, cat_summary = compute_bucket_autocorrelation()
     if not icc_detail.empty:
@@ -64,7 +76,7 @@ def _save_icc_and_floor() -> None:
         for _, row in cat_summary.iterrows():
             print(f"    {row['category']}: mean lag-1 autocorr = {row['mean_lag1_ac']:.4f} "
                   f"[{row['ci95_lower']:.4f}, {row['ci95_upper']:.4f}] "
-                  f"-> {row['interpretation']}")
+                  f"(deprecated)")
 
     floor_df = compute_floor_decomposition()
     if not floor_df.empty:

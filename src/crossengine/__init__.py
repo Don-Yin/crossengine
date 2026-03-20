@@ -1,9 +1,9 @@
-"""backtest -- standalone multi-asset portfolio backtesting engine.
+"""crossengine -- multi-asset portfolio backtesting engine with cross-engine concordance testing.
 
 Quick start::
 
     import pandas as pd
-    from backtest import backtest, STAY
+    from crossengine import backtest, STAY
 
     prices = pd.DataFrame({"AAPL": [...], "MSFT": [...]}, index=dates)
     signals = pd.DataFrame({"AAPL": [0.6, "s", 0.3], "MSFT": [0.4, "s", 0.7]}, index=dates)

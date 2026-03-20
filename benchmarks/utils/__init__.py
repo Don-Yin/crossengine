@@ -1,11 +1,11 @@
 """benchmarks.utils -- shared facilities for all benchmark scripts.
 
-Modules
+modules
 -------
 data          constants, data loaders, rebalance-date helpers
-engine        WeightSchedule type, engine adapters, unified runner
+engine        SignalSchedule type, engine adapters, unified runner
 comparison    write_comparison, publication figure styling
-strategies    strategy library (pure functions -> WeightSchedule)
+strategies    strategy library (pure functions -> SignalSchedule)
 """
 
 from utils.log import setup_logging
@@ -37,10 +37,8 @@ from utils.data import (
 from utils.engine import (
     WeightSchedule,
     run_benchmark,
-    run_bt,
     run_bt_engine,
     run_ours,
     run_vbt_engine,
-    run_vectorbt,
 )
 from utils.runner import load_buckets, run_multi_bucket

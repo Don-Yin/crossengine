@@ -44,3 +44,6 @@ build/
 # environment
 .env
 *.log
+
+.claude
+.mcp.json
