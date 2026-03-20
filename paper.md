@@ -51,7 +51,7 @@ the concordance API accepts either a strategy function or a pre-computed weight 
 
 the companion paper validates this tool on 12 benchmark strategies (plus 4 ML approaches) across 30 non-overlapping asset buckets (180 S&P 500 stocks). validation tests compare all 150 equity curves (5 engines x 30 buckets) against the paper's saved results with sub-penny tolerance ($0.01).
 
-![divergence scales with transaction costs. each point is one of 15 benchmarks averaged over 30 stratified asset buckets. zero-cost strategies produce 0.0% divergence; high-turnover strategies with costs produce up to 3.7%.](figures/divergence-vs-cost.png)
+![divergence scales with transaction costs. each point is one of 15 benchmarks averaged over 30 stratified asset buckets. zero-cost strategies produce 0.0% divergence; high-turnover strategies with costs produce up to 3.8%.](figures/divergence-vs-cost.png)
 
 # features
 
@@ -63,7 +63,7 @@ the companion paper validates this tool on 12 benchmark strategies (plus 4 ML ap
 
 # design
 
-![engine sensitivity (ES) across 15 benchmarks and 8 performance metrics, computed over 30 independent asset buckets each. most strategies show near-zero sensitivity; rotation and concentrated strategies show material divergence in return and CAGR metrics.](figures/engine-concordance.png)
+![engine sensitivity (ES) across 15 benchmarks and 10 metrics (5 base metrics with ranges), computed over 30 independent asset buckets each. most strategies show near-zero sensitivity; rotation and concentrated strategies show material divergence in return and CAGR.](figures/engine-concordance.png)
 
 the package uses a two-layer architecture that we arrived at after considerable iteration. the backtesting engine accepts a signals DataFrame (with optional STAY sentinels) and produces a `BacktestResult` with portfolio value, positions, trades, and metrics. the concordance layer uses a `SignalSchedule` dict as its interchange format (`{Timestamp: {asset: weight | STAY}}`), which each engine wrapper translates into its native API.
 
