@@ -13,8 +13,10 @@ authors:
     given-names: Vladislav
     orcid: "https://orcid.org/0009-0004-9023-3613"
 version: 0.1.0
+doi: "10.5281/zenodo.19192436"
+date-released: "2026-03-23"
 license: MIT
-repository-code: "https://github.com/donyin/crossengine"
+repository-code: "https://github.com/Don-Yin/crossengine"
 keywords:
   - backtesting
   - portfolio

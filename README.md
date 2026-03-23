@@ -3,6 +3,7 @@
 [![tests](https://github.com/Don-Yin/crossengine/actions/workflows/tests.yml/badge.svg)](https://github.com/Don-Yin/crossengine/actions/workflows/tests.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19192436.svg)](https://doi.org/10.5281/zenodo.19192436)
 
 multi-asset portfolio backtesting engine + cross-engine concordance testing.
 
