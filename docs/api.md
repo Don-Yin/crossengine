@@ -35,6 +35,11 @@ result = backtest(
 
 **returns:** `BacktestResult`
 
+Current execution semantics are same-bar close fills: when a date is present in
+`signals`, the rebalance is applied on that same date using the corresponding
+close from `prices`. This is a close-fill model, not an implicit next-bar-open
+execution model.
+
 ### `STAY`
 
 sentinel value for "freeze share count, let weight drift." use in signals DataFrame:

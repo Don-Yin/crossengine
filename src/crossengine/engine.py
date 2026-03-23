@@ -125,6 +125,10 @@ class _Engine:
             self._process_pending(bar, date, trade_log)
 
             if date in self.signals.index:
+                # Current semantics: signal rows rebalance on the same bar using
+                # that bar's close price. This is intentional today, but users
+                # should treat it as a close-fill model rather than next-bar
+                # execution until execution_delay lands.
                 self._rebalance(bar, date, trade_log)
 
             chronicle.append(self.portfolio.snapshot(bar["prices"], date))

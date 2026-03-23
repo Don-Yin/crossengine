@@ -64,6 +64,11 @@ result.plot()
 
 signal values are target weights. they are auto-normalised to sum to 1. rows in signals trigger a rebalance on that date; dates without a row hold the existing positions.
 
+Current fill semantics are same-bar close fills: if a row appears in `signals`
+for a given date, crossengine rebalances on that date using the close from the
+same row in `prices`. That makes the engine easy to reason about for close-based
+portfolio schedules, but it should not be interpreted as next-bar execution.
+
 ### hold without rebalancing (STAY)
 
 STAY freezes the share count, not the weight. price movement causes the weight to drift naturally. no trades are generated for STAY assets.
