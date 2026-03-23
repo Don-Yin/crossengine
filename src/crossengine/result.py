@@ -269,8 +269,8 @@ class BacktestResult:
                 b_rebased = bm_aligned.loc[common] / bm_aligned.loc[common].iloc[0] * 100
                 axes[5].plot(common, p_rebased, label="portfolio", linewidth=1.3, color="#2E5090")
                 bm_label = benchmark.name if benchmark.name else "benchmark"
-      272 +     axes[5].plot(common, b_rebased, label=bm_label, linewidth=1,
-                             color="grey", linestyle="--", alpha=0.8)
+                axes[5].plot(common, b_rebased, label=bm_label, linewidth=1,
+                                     color="grey", linestyle="--", alpha=0.8)
                 axes[5].fill_between(common, p_rebased, b_rebased,
                                      where=p_rebased >= b_rebased, color="#27AE60", alpha=0.10)
                 axes[5].fill_between(common, p_rebased, b_rebased,
