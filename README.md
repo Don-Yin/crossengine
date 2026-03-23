@@ -1,5 +1,9 @@
 # crossengine
 
+[![tests](https://github.com/Don-Yin/crossengine/actions/workflows/tests.yml/badge.svg)](https://github.com/Don-Yin/crossengine/actions/workflows/tests.yml)
+[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 multi-asset portfolio backtesting engine + cross-engine concordance testing.
 
 companion code for the paper "Implementation Risk in Portfolio Backtesting: A Previously Unquantified Source of Error" (Yin, Miki, Lesnichenko).
